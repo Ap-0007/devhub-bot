@@ -176,54 +176,58 @@ jobs:
 
             const text = `${issue.title}\n${issue.body || ""}`.toLowerCase();
 
-            const detectedLabels = [];
+            const labels = new Set();
 
             const rules = [
-              { keywords: ["bug", "error", "crash", "fail"], label: "bug" },
-              { keywords: ["feature", "request", "enhancement"], label: "enhancement" },
-              { keywords: ["doc", "docs", "readme"], label: "documentation" },
-              { keywords: ["question", "help"], label: "question" },
+              {
+                keywords: ["bug", "error", "crash", "fail"],
+                label: "bug",
+              },
+              {
+                keywords: ["feature", "request", "enhancement"],
+                label: "enhancement",
+              },
+              {
+                keywords: ["doc", "docs", "readme"],
+                label: "docs",
+              },
+              {
+                keywords: ["question", "help"],
+                label: "question",
+              },
             ];
 
             for (const rule of rules) {
-              if (
-                rule.label &&
-                rule.keywords.some((k) => text.includes(k))
-              ) {
-                detectedLabels.push(rule.label);
+              if (rule.keywords.some((k) => text.includes(k))) {
+                labels.add(rule.label);
               }
             }
 
-            // Deduplicate + remove invalid values
-            const labels = [...new Set(detectedLabels)].filter(
-              (l) => typeof l === "string" && l.trim().length > 0
-            );
-
-            if (labels.length > 0) {
+            if (labels.size > 0) {
               await github.rest.issues.addLabels({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 issue_number: issue.number,
-                labels,
+                labels: Array.from(labels),
               });
             }
 
-            const comment = [
+            const commentLines = [
               "👋 **Thanks for opening this issue!**",
               "",
-              "The DevHub maintainers have been notified and will review it ASAP 🚀",
+              "The Open DevHub maintainers have been notified and will review it as soon as possible 🚀",
               "",
-              "📌 **Tips to help us help you:**",
-              "- Clear steps to reproduce (for bugs)",
-              "- Expected vs actual behavior",
-              "- Screenshots or logs if applicable",
+              "📌 **Tips to speed things up:**",
+              "- Provide clear steps to reproduce (if it's a bug)",
+              "- Attach screenshots or logs if relevant",
+              "- Mention expected vs actual behavior",
               "",
-              "Thanks for contributing 💙",
-            ].join("\n");
+              "We appreciate your contribution 💙",
+            ];
 
             await github.rest.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: issue.number,
-              body: comment,
+              body: commentLines.join("\n"),
             });
