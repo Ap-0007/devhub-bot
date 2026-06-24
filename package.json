@@ -22,11 +22,11 @@
     "probot": "^14.3.2"
   },
   "devDependencies": {
-    "@types/node": "^24.0.0",
+    "@types/node": "^26.0.0",
     "ioredis": "^5.10.1",
     "nock": "^14.0.5",
     "smee-client": "^5.0.0",
-    "vitest": "^3.2.4",
+    "vitest": "^4.1.9",
     "typescript": "^6.0.3"
   },
   "overrides": {
